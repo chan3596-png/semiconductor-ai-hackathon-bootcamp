@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SK하이닉스 지원 준비생을 위한 AI 프로젝트 단기 특강 · 개인 정리본</title>
+<meta name="description" content="반도체 문제를 AI 프로젝트로 증명하는 8단계 방법론 정리 + 10개 주제 실습 + 교육용 데이터(A/B/Holdout) 다운로드 가이드 + 현장 실전 팁">
+<meta name="theme-color" content="#f3f4f0">
+<style>
+/* ============================================================
+   DESIGN TOKENS — light mode
+   ============================================================ */
+:root{
+  --bg:#f3f4f0;
+  --bg-soft:#eceee8;
+  --surface:#ffffff;
+  --surface-2:#eef0ea;
+  --surface-3:#e6e9e1;
+  --border:#d9dcd3;
+  --border-soft:#e3e5de;
+  --text:#12161f;
+  --text-dim:#5b6270;
+  --text-faint:#8a92a0;
+  --amber:#a3610a;
+  --amber-soft:#f7ead2;
+  --amber-glow:rgba(163,97,10,0.10);
+  --cyan:#0a7a86;
+  --cyan-soft:#dcf0f0;
+  --cyan-glow:rgba(10,122,134,0.10);
+  --danger:#b23c2c;
+  --good:#2e7d52;
+  --radius-s:6px;
+  --radius-m:10px;
+  --radius-l:16px;
+  --maxw:1180px;
+  --font-display:-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard Variable","Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  --font-body:-apple-system,BlinkMacSystemFont,"Segoe UI","Pretendard Variable","Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;
+  --font-mono:"SF Mono","Cascadia Code","Consolas","Roboto Mono","D2Coding",monospace;
+}
+
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto;}
+  *{animation-duration:0.01ms !important;animation-iteration-count:1 !important;transition-duration:0.01ms !important;}}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:var(--font-body);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+
+body::before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:0;
+  pointer-events:none;
+  background-image:
+    radial-gradient(circle at 12% 8%, var(--amber-glow), transparent 32%),
+    radial-gradient(circle at 88% 4%, var(--cyan-glow), transparent 28%);
+  opacity:0.6;
+}
+
+a{color:inherit;text-decoration:none;}
+img,svg{display:block;max-width:100%;}
+ul{list-style:none;}
+button{font:inherit;color:inherit;}
+
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 28px;position:relative;z-index:1;}
+.eyebrow{
+  font-family:var(--font-mono);
+  font-size:12.5px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:var(--amber);
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:14px;
+}
+.eyebrow::before{content:"";width:22px;height:1px;background:var(--amber);display:inline-block;}
+.eyebrow.cyan{color:var(--cyan);}
+.eyebrow.cyan::before{background:var(--cyan);}
+
+h1,h2,h3,h4{font-family:var(--font-display);font-weight:800;letter-spacing:-0.02em;color:var(--text);}
+h2.section-title{font-size:clamp(26px,3.6vw,40px);line-height:1.22;margin-bottom:14px;}
+h2.section-title em{font-style:normal;color:var(--amber);}
+p.section-lede{color:var(--text-dim);font-size:16px;max-width:760px;line-height:1.75;margin-bottom:40px;}
+
+section{position:relative;z-index:1;padding:88px 0;border-bottom:1px solid var(--border-soft);}
+section.tight{padding:64px 0;}
+.section-head{margin-bottom:44px;}
+
+/* NAV */
+header.site-nav{
+  position:sticky;top:0;z-index:50;
+  background:rgba(243,244,240,0.88);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--border-soft);
+}
+.nav-inner{
+  max-width:var(--maxw);margin:0 auto;padding:14px 28px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;
+}
+.nav-brand{
+  font-family:var(--font-mono);font-size:13px;color:var(--text);
+  display:flex;align-items:center;gap:10px;white-space:nowrap;
+}
+.nav-brand .dot{width:8px;height:8px;border-radius:50%;background:var(--amber);box-shadow:0 0 10px var(--amber-glow);}
+.nav-links{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.nav-links::-webkit-scrollbar{display:none;}
+.nav-links a{
+  font-size:13px;color:var(--text-dim);padding:8px 12px;border-radius:999px;white-space:nowrap;
+  transition:color .15s, background .15s;
+}
+.nav-links a:hover{color:var(--text);background:var(--surface-2);}
+
+/* BUTTONS */
+.btn{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:13px 22px;border-radius:999px;font-size:14.5px;font-weight:600;
+  border:1px solid transparent;cursor:pointer;transition:transform .15s, background .15s, border-color .15s;
+}
+.btn:hover{transform:translateY(-1px);}
+.btn-primary{background:var(--amber);color:#fffaf3;}
+.btn-primary:hover{background:#844f08;}
+.btn-ghost{border-color:var(--border);color:var(--text);background:transparent;}
+.btn-ghost:hover{border-color:var(--cyan);color:var(--cyan);}
+.btn-block{width:100%;justify-content:center;}
+
+/* HERO */
+.hero{padding:80px 0 60px;border-bottom:1px solid var(--border-soft);position:relative;overflow:hidden;}
+.hero-grid{
+  position:absolute;inset:-10% -5% auto auto;width:620px;height:620px;z-index:0;opacity:0.6;
+  pointer-events:none;
+}
+.hero-inner{position:relative;z-index:1;max-width:760px;}
+.hero h1{font-size:clamp(34px,5.6vw,58px);line-height:1.14;margin-bottom:22px;}
+.hero h1 .accent{color:var(--amber);}
+.hero-sub-list{
+  display:grid;gap:9px;margin:26px 0 34px;
+  font-family:var(--font-mono);font-size:14.5px;color:var(--text-dim);
+}
+.hero-sub-list li{display:flex;gap:10px;align-items:baseline;}
+.hero-sub-list li::before{content:"→";color:var(--cyan);flex-shrink:0;}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:36px;}
+.hero-meta{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:0;
+  border:1px solid var(--border);border-radius:var(--radius-m);overflow:hidden;
+  margin-bottom:18px;background:var(--surface);
+}
+.hero-meta div{padding:16px 18px;border-right:1px solid var(--border);}
+.hero-meta div:last-child{border-right:none;}
+.hero-meta .k{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.1em;color:var(--text-faint);text-transform:uppercase;margin-bottom:6px;}
+.hero-meta .v{font-size:14px;font-weight:600;color:var(--text);}
+.hero-note{font-size:12.5px;color:var(--text-faint);}
+.hero-note strong{color:var(--text-dim);}
+
+/* quick nav cards */
+.map-row{
+  display:grid;grid-template-columns:repeat(5,1fr);gap:12px;
+  padding:40px 0 0;
+}
+.map-card{
+  border:1px solid var(--border);border-radius:var(--radius-m);padding:18px 16px;
+  background:var(--surface);transition:border-color .15s, transform .15s;
+}
+.map-card:hover{border-color:var(--amber);transform:translateY(-3px);}
+.map-card .num{font-family:var(--font-mono);font-size:11px;color:var(--amber);letter-spacing:.06em;margin-bottom:8px;}
+.map-card .lbl{font-size:14px;font-weight:700;color:var(--text);}
+
+@media (max-width:900px){
+  .hero-meta{grid-template-columns:repeat(2,1fr);}
+  .hero-meta div:nth-child(2){border-right:none;}
+  .map-row{grid-template-columns:repeat(2,1fr);}
+  .nav-brand span.full{display:none;}
+}
+
+/* GENERIC GRIDS + CARDS */
+.grid-2{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+.grid-5{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;}
+.grid-6{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;}
+@media (max-width:980px){.grid-4,.grid-5,.grid-6{grid-template-columns:repeat(2,1fr);}.grid-3{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:640px){.grid-2,.grid-3,.grid-4,.grid-5,.grid-6{grid-template-columns:1fr;}}
+
+.card{
+  background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-m);
+  padding:22px 20px;transition:border-color .15s, transform .15s, background .15s;
+}
+.card:hover{border-color:var(--amber);transform:translateY(-2px);background:var(--surface-2);}
+.card.cyan-hover:hover{border-color:var(--cyan);}
+.card .tag{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.09em;color:var(--amber);text-transform:uppercase;margin-bottom:10px;display:block;}
+.card.cyan .tag{color:var(--cyan);}
+.card h4{font-size:16.5px;font-weight:700;margin-bottom:8px;line-height:1.35;color:var(--text);}
+.card p{font-size:13.8px;color:var(--text-dim);line-height:1.6;}
+.card.border-l{border-left:3px solid var(--amber);}
+.card.border-l.cy{border-left:3px solid var(--cyan);}
+
+/* muscle row */
+.muscle-row{display:flex;gap:16px;flex-wrap:wrap;margin:22px 0;}
+.muscle-item{
+  flex:1;min-width:180px;border:1px solid var(--border);border-radius:var(--radius-m);
+  padding:20px;background:var(--surface);text-align:left;
+}
+.muscle-item .mi-label{font-family:var(--font-mono);font-size:11px;color:var(--cyan);letter-spacing:.08em;margin-bottom:8px;}
+.muscle-item h4{font-size:15px;margin-bottom:6px;}
+.muscle-item p{font-size:13px;color:var(--text-dim);}
+
+/* vertical numbered steps */
+.steps-vert{display:flex;flex-direction:column;gap:0;margin:26px 0;}
+.step-item{display:flex;gap:20px;padding:20px 0;border-top:1px solid var(--border-soft);}
+.step-item:first-child{border-top:none;}
+.step-num{
+  flex-shrink:0;width:38px;height:38px;border-radius:50%;border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-family:var(--font-mono);
+  font-size:14px;color:var(--amber);background:var(--surface);
+}
+.step-body h4{font-size:15.5px;margin-bottom:5px;}
+.step-body p{font-size:13.8px;color:var(--text-dim);line-height:1.65;}
+.step-body a.tpl-link{font-size:12.5px;color:var(--cyan);display:inline-block;margin-top:6px;}
+.step-body a.tpl-link:hover{text-decoration:underline;}
+
+/* checklist */
+.check-list{display:grid;gap:11px;margin:18px 0;}
+.check-list li{display:flex;gap:10px;font-size:14px;color:var(--text-dim);align-items:flex-start;}
+.check-list li::before{content:"✓";color:var(--good);font-weight:700;flex-shrink:0;font-family:var(--font-mono);}
+
+/* callout boxes */
+.callout{
+  border:1px solid var(--border);border-radius:var(--radius-m);padding:20px 22px;
+  background:var(--surface);display:flex;gap:16px;align-items:flex-start;margin:22px 0;
+}
+.callout .ic{font-family:var(--font-mono);font-size:20px;flex-shrink:0;}
+.callout h5{font-size:14px;margin-bottom:5px;color:var(--text);}
+.callout p{font-size:13.5px;color:var(--text-dim);line-height:1.65;}
+.callout p a{color:var(--cyan);}
+.callout-warn{border-color:var(--amber-soft);background:linear-gradient(180deg,rgba(163,97,10,0.06),transparent);}
+.callout-warn .ic{color:var(--amber);}
+.callout-info{border-color:#c9e6e6;background:linear-gradient(180deg,rgba(10,122,134,0.06),transparent);}
+.callout-info .ic{color:var(--cyan);}
+
+/* timeline row (lecture map) */
+.timeline-row{display:flex;gap:2px;margin-top:30px;overflow-x:auto;padding-bottom:6px;}
+.tl-block{
+  flex:1;min-width:118px;background:var(--surface);border:1px solid var(--border);
+  padding:16px 14px;position:relative;
+}
+.tl-block:first-child{border-radius:var(--radius-s) 0 0 var(--radius-s);}
+.tl-block:last-child{border-radius:0 var(--radius-s) var(--radius-s) 0;}
+.tl-block .tl-time{font-family:var(--font-mono);font-size:11px;color:var(--amber);margin-bottom:10px;}
+.tl-block .tl-title{font-size:13px;font-weight:700;line-height:1.4;margin-bottom:8px;min-height:36px;}
+.tl-block .tl-dur{font-family:var(--font-mono);font-size:11px;color:var(--text-faint);}
+
+/* chart frame / zoomable */
+.chart-frame{
+  border:1px solid var(--border);border-radius:var(--radius-l);padding:26px;background:var(--surface);
+  margin-top:28px;cursor:zoom-in;position:relative;
+}
+.chart-frame:hover{border-color:var(--cyan);}
+.chart-frame .zoom-hint{
+  position:absolute;top:18px;right:20px;font-family:var(--font-mono);font-size:10.5px;
+  color:var(--text-faint);letter-spacing:.05em;
+}
+
+/* lightbox */
+.lightbox{
+  position:fixed;inset:0;background:rgba(15,18,14,0.72);z-index:200;
+  display:none;align-items:center;justify-content:center;padding:40px;
+  cursor:zoom-out;
+}
+.lightbox.open{display:flex;}
+.lightbox-inner{max-width:900px;width:100%;max-height:88vh;overflow:auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-l);padding:34px;cursor:auto;position:relative;}
+.lightbox-close{position:absolute;top:20px;right:24px;color:var(--text-dim);font-family:var(--font-mono);font-size:12px;font-weight:700;cursor:pointer;border:1px solid var(--border);background:var(--surface);padding:8px 14px;border-radius:999px;z-index:2;}
+.lightbox-close:hover{color:var(--text);border-color:var(--cyan);background:var(--cyan-soft);}
+.lightbox-caption{margin-top:18px;padding-top:14px;border-top:1px solid var(--border-soft);font-size:12.5px;color:var(--text-faint);line-height:1.6;}
+
+/* download rule cards */
+.rule-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:26px 0;}
+.rule-card{border-radius:var(--radius-l);padding:24px;border:1px solid var(--border);background:var(--surface);}
+.rule-card.train{background:linear-gradient(180deg,rgba(10,122,134,0.06),var(--surface) 55%);border-color:#c3e2e2;}
+.rule-card.holdout{background:linear-gradient(180deg,rgba(163,97,10,0.06),var(--surface) 55%);border-color:var(--amber-soft);}
+.rule-card .rc-tag{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;margin-bottom:10px;}
+.rule-card.train .rc-tag{color:var(--cyan);}
+.rule-card.holdout .rc-tag{color:var(--amber);}
+.rule-card h4{font-size:17px;margin-bottom:10px;}
+.rule-card p{font-size:13.8px;color:var(--text-dim);line-height:1.7;}
+@media (max-width:800px){.rule-grid{grid-template-columns:1fr;}}
+
+/* per-topic download link pills */
+.dl-links{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:16px;}
+.dl-link{
+  font-family:var(--font-mono);font-size:12.5px;color:var(--cyan);padding:10px 14px;border:1px solid var(--border);
+  border-radius:var(--radius-s);display:block;background:var(--surface);transition:border-color .15s,background .15s;
+}
+.dl-link:hover{border-color:var(--cyan);background:var(--cyan-soft);}
+.dl-link .dl-main{font-weight:700;}
+.dl-link small{display:block;margin-top:3px;color:var(--text-faint);font-size:10.5px;}
+.dl-link.hold{color:var(--amber);}
+.dl-link.hold:hover{border-color:var(--amber);background:var(--amber-soft);}
+@media (max-width:560px){.dl-links{grid-template-columns:1fr;}}
+
+.data-note{margin-top:14px;padding:12px 14px;background:var(--bg-soft);border-radius:var(--radius-s);font-size:12.5px;color:var(--text-dim);}
+.data-note strong{color:var(--text);}
+
+/* topic accordion */
+.topic-acc-list{display:flex;flex-direction:column;gap:10px;margin-top:30px;}
+.topic-acc{border:1px solid var(--border);border-radius:var(--radius-m);background:var(--surface);overflow:hidden;}
+.topic-acc[open]{border-color:var(--amber);}
+.topic-acc summary{
+  list-style:none;cursor:pointer;padding:18px 22px;display:flex;align-items:center;gap:16px;
+}
+.topic-acc summary::-webkit-details-marker{display:none;}
+.topic-acc summary .ta-num{font-family:var(--font-mono);font-size:13px;color:var(--amber);flex-shrink:0;width:26px;}
+.topic-acc summary .ta-title{font-size:15.5px;font-weight:700;flex:1;}
+.topic-acc summary .ta-teaser{font-size:12.5px;color:var(--text-dim);flex:1;display:none;}
+.topic-acc summary .ta-chev{font-family:var(--font-mono);color:var(--text-faint);transition:transform .2s;flex-shrink:0;}
+.topic-acc[open] summary .ta-chev{transform:rotate(180deg);}
+@media (min-width:760px){.topic-acc summary .ta-teaser{display:block;}}
+.topic-acc-body{padding:0 24px 26px;border-top:1px solid var(--border-soft);}
+.topic-acc-body .ta-mission{font-size:15px;font-weight:700;margin:18px 0 14px;line-height:1.6;}
+.topic-acc-body .ta-subjects{
+  font-family:var(--font-mono);font-size:12px;color:var(--text-dim);background:var(--bg-soft);
+  padding:12px 14px;border-radius:var(--radius-s);margin-bottom:16px;line-height:1.7;
+}
+.ta-detail-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:6px;}
+.ta-detail-grid h6{font-family:var(--font-mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-faint);margin-bottom:6px;}
+.ta-detail-grid p{font-size:13px;color:var(--text-dim);line-height:1.6;}
+@media (max-width:640px){.ta-detail-grid{grid-template-columns:1fr;}}
+
+/* footer */
+footer{padding:50px 0;text-align:center;}
+footer p{font-size:12px;color:var(--text-faint);font-family:var(--font-mono);}
+footer a{color:var(--text-dim);}
+footer a:hover{color:var(--cyan);}
+
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+@media (max-width:800px){.two-col{grid-template-columns:1fr;}}
+
+.added-flag{
+  display:inline-block;font-family:var(--font-mono);font-size:10px;letter-spacing:.06em;
+  color:var(--good);border:1px solid #bfe0cd;padding:3px 9px;border-radius:999px;margin-left:10px;vertical-align:middle;
+}
+</style>
+</head>
+<body>
+
+<header class="site-nav">
+  <div class="nav-inner">
+    <div class="nav-brand"><span class="dot"></span><span class="full">AI PROJECT SHORT CLASS</span><span>· 정리본</span></div>
+    <nav class="nav-links">
+      <a href="#intro">채용·직무</a>
+      <a href="#download">데이터 다운로드</a>
+      <a href="#topics">주제 10개</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-inner">
+    <div class="eyebrow">SK하이닉스 지원 준비생 · AI 프로젝트 단기 특강</div>
+    <h1>반도체 문제를<br><span class="accent">AI 프로젝트로</span> 증명하라</h1>
+    <ul class="hero-sub-list">
+      <li>2시간 동안 문제를 찾고 데이터를 탐색합니다</li>
+      <li>Agent로 분석과 시각화를 실행합니다</li>
+      <li>머신러닝 결과를 Holdout으로 검증합니다</li>
+      <li>앱과 보고서로 경험을 증명합니다</li>
+    </ul>
+    <div class="hero-cta">
+      <a class="btn btn-primary" href="#topics">주제와 데이터 고르기</a>
+    </div>
+    <div class="hero-meta">
+      <div><div class="k">Instructor</div><div class="v">최 Pro</div></div>
+      <div><div class="k">Class</div><div class="v">1회 · 2시간</div></div>
+      <div><div class="k">Autonomy</div><div class="v">8월 20일 이후</div></div>
+      <div><div class="k">Output</div><div class="v">App+Report+Pages</div></div>
+    </div>
+    <p class="hero-note"><strong>안내</strong> · SK하이닉스 공식 교육과정이 아닌 지원 준비생 대상 독립 특강 내용을 본인이 정리한 학습용 페이지입니다.</p>
+  </div>
+
+  <div class="wrap map-row">
+    <div class="map-card"><div class="num">01 / USER</div><div class="lbl">모델보다 사용자의 결정을 먼저</div></div>
+    <div class="map-card"><div class="num">02 / DATA</div><div class="lbl">평균보다 데이터 품질을 먼저</div></div>
+    <div class="map-card"><div class="num">03 / PHYSICS</div><div class="lbl">AI보다 검증된 원리를 먼저</div></div>
+    <div class="map-card"><div class="num">04 / CAUSALITY</div><div class="lbl">상관과 인과, 대안 설명을 분리</div></div>
+    <div class="map-card"><div class="num">05 / EVIDENCE</div><div class="lbl">말보다 diff·test·page로 증명</div></div>
+  </div>
+</section>
+
+<section id="intro">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">01 · SK하이닉스 신 채용</div>
+      <h2 class="section-title">AI를 썼는지가 아니라, <em>어떻게 문제를 풀었는가</em></h2>
+      <p class="section-lede">새 채용에서는 지원서에 적은 AI 경험과 현장에서 보여주는 문제해결 과정이 연결된다. 지원자는 전공지식으로 문제를 정의하고, LLM을 활용해 정보를 탐색한 뒤, 결과의 근거와 한계를 자신의 언어로 설명할 수 있어야 한다.</p>
+    </div>
+
+    <div class="grid-5">
+      <div class="card"><span class="tag">01 · 이력서</span><h4>AI 경험기술</h4><p>AI로 직무 전문성을 쌓은 과정과 본인의 역할을 프로젝트·연구 경험으로 증명한다.</p></div>
+      <div class="card"><span class="tag">02 · 직무 상황</span><h4>PC 기반 과제</h4><p>과제를 분석하고 LLM으로 필요한 정보를 탐색하며 해결안을 도출한다.</p></div>
+      <div class="card"><span class="tag">03 · 심층 검증</span><h4>PT·인터뷰</h4><p>문제해결 과정을 발표하고 연구·수상·지원서 경험의 깊이를 후속 질문으로 확인한다.</p></div>
+      <div class="card"><span class="tag">04 · 그룹 토의</span><h4>관점과 시너지</h4><p>열린 주제를 두고 타인의 의견을 경청하며 공동의 결론을 발전시킨다.</p></div>
+      <div class="card"><span class="tag">05 · A!SK</span><h4>직무 기초 응답</h4><p>직무 기초 질문에 지원자가 자신의 지식과 논리로 응답한다.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="download">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow cyan">05 · 교육용 데이터 다운로드</div>
+      <h2 class="section-title">학습과 <em>Holdout</em> 분리 규칙</h2>
+      <p class="section-lede">데이터를 학습과 검증 용도로 엄격히 분리하여, 모델이 새로운 데이터에도 잘 작동하는지 확인합니다.</p>
+    </div>
+    
+    <div class="rule-grid">
+      <div class="rule-card train">
+        <div class="rc-tag">TRAIN DATA</div>
+        <h4>학습 데이터 (train.csv)</h4>
+        <p>A 또는 B 데이터 중 하나만 다운로드하여 모델을 학습시킵니다. 데이터 중 70%는 모델 학습에, 30%는 학습 중 검증(Validation)용으로 사용하세요. 두 버전을 섞어 쓰지 마십시오.</p>
+      </div>
+      <div class="rule-card holdout">
+        <div class="rc-tag">HOLDOUT DATA</div>
+        <h4>테스트 데이터 (holdout_features.csv)</h4>
+        <p>Holdout 데이터는 판정(success/fail) 정보가 없는 테스트 셋입니다. 학습시킨 모델의 최종 예측 성능을 확인하는 용도이므로, A와 B 데이터를 모두 다운로드하여 두 환경에 대해 각각 정확도 검증을 수행하세요.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="topics">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="eyebrow">10 TOPICS</div>
+      <h2 class="section-title">주제 <em>10개</em> 및 실습 데이터</h2>
+      <p class="section-lede">반도체 공정, 수율, 설비 등 각 직무에 특화된 10가지 주제 중 하나를 선택해 진행합니다.</p>
+    </div>
+    <div class="topic-acc-list">
+      
+    <details class="topic-acc" open>
+      <summary>
+        <div class="ta-num">01</div>
+        <div class="ta-title">01. Photo PR 공정 — 기본</div>
+        <div class="ta-teaser">어떤 조건을 다음 DOE 후보로 고를지 결정할 도구를 만든다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> 어떤 조건을 다음 DOE 후보로 고를지 결정할 도구를 만든다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> 반도체 노광, 광학, PR 재료화학, 공학통계·DOE.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>파장·NA·패턴 크기, 초점 여유, PR 깊이 방향의 광 세기.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>CD만 맞으면 좋은 조건인가? PR 종류가 달라도 같은 관계인가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>최초 가설과 수정본, 조건별 오차, 실패 사례, 다음 DOE 3개.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/photo_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/photo_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/photo_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/photo_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/photo_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    <details class="topic-acc" >
+      <summary>
+        <div class="ta-num">02</div>
+        <div class="ta-title">02. Overlay 보정 — 기본</div>
+        <div class="ta-teaser">Global 보정과 Local 확인이 필요한 Field를 구분한다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> Global 보정과 Local 확인이 필요한 Field를 구분한다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> 정렬계측, 선형대수, 회귀·SPC, 공간 시각화.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>좌표계의 이동·회전·확대, 보정 후 잔차의 정의.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>잔차가 크면 항상 Local 공정 문제인가? 계측 품질은 어떻게 분리하는가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>보정 전후 비교, Wafer map, 반례 Field, 추가 계측 제안.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/overlay_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/overlay_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/overlay_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/overlay_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/overlay_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    <details class="topic-acc" >
+      <summary>
+        <div class="ta-num">03</div>
+        <div class="ta-title">03. Dry Etch Endpoint — 중급</div>
+        <div class="ta-teaser">종료 시점과 과식각 위험을 함께 판단하는 규칙을 설계한다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> 종료 시점과 과식각 위험을 함께 판단하는 규칙을 설계한다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> 플라즈마 공정, 표면반응·물질전달, OES, 시계열·변화점.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>깊이와 시간, Target과 Mask 속도, Endpoint 이후 추가시간.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>OES 변화가 공정 종료 때문이라는 증거는 무엇인가? Chamber age가 교란하는가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>기준 규칙, 오탐·미탐·지연, 실패 Run, 추가 센서 제안.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/dry_etch_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/dry_etch_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/dry_etch_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/dry_etch_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/dry_etch_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    <details class="topic-acc" >
+      <summary>
+        <div class="ta-num">04</div>
+        <div class="ta-title">04. HAR Etch Profile — 고급</div>
+        <div class="ta-teaser">단면 품질 조건을 만족하는 공정 영역을 찾는다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> 단면 품질 조건을 만족하는 공정 영역을 찾는다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> 플라즈마 식각, 미세구조 수송, Passivation, 단면계측.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>깊이와 입구 폭, 종횡비·패턴밀도와 속도, 깊이 방향 CD.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>속도 저하가 종횡비 때문인가, 패턴밀도 때문인가? 측정 위치가 결론을 바꾸는가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>Profile 제약, 경쟁 가설, 실패 모드, 다음 단면 DOE.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/har_etch_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/har_etch_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/har_etch_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/har_etch_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/har_etch_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    <details class="topic-acc" >
+      <summary>
+        <div class="ta-num">05</div>
+        <div class="ta-title">05. CMP 최적화 — 기본</div>
+        <div class="ta-teaser">제거율과 품질 손실을 함께 보는 Recipe 후보를 고른다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> 제거율과 품질 손실을 함께 보는 Recipe 후보를 고른다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> Tribology, 유체역학, 표면화학, 다목적 최적화.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>압력·상대속도와 제거율, Pad age·Pattern density의 영향.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>제거율이 높으면 좋은 Recipe인가? 한 Tool에서만 성립하는가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>단일 KPI 기준과 비교, 비지배 후보, 조건별 실패, 다음 실험.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/cmp_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/cmp_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/cmp_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/cmp_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/cmp_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    <details class="topic-acc" >
+      <summary>
+        <div class="ta-num">06</div>
+        <div class="ta-title">06. 증착 Run-to-Run APC — 중급</div>
+        <div class="ta-teaser">Drift를 감지하고 다음 Run 보정 여부를 판단한다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> Drift를 감지하고 다음 Run 보정 여부를 판단한다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> ALD/CVD, 표면반응속도론, 열·물질전달, 공정제어.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>온도와 반응속도, Cycle과 두께, 이전 오차와 다음 보정.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>Drift인가 계측 이상인가? 보정이 오히려 진동을 만드는 조건은 무엇인가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>기준 보정과 비교, 과보정 사례, 적용 금지 조건, 추가 계측.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/depoistion_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/depoistion_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/depoistion_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/depoistion_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/depoistion_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    <details class="topic-acc" >
+      <summary>
+        <div class="ta-num">07</div>
+        <div class="ta-title">07. 설비 FDC — 중급</div>
+        <div class="ta-teaser">경보가 발생했을 때 점검할 변수의 우선순위를 정한다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> 경보가 발생했을 때 점검할 변수의 우선순위를 정한다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> 센서계측, SPC, 다변량통계·시계열, 신뢰성.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>서로 다른 단위의 표준화, 최근 값의 가중, 변수 간 상관을 반영한 거리.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>정상 범위를 벗어나면 고장인가? False alarm과 Miss 중 어느 비용이 큰가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>기준 경보와 비교, 오탐·미탐, 점검 순서, 적용 한계.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/fdc_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/fdc_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/fdc_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/fdc_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/fdc_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    <details class="topic-acc" >
+      <summary>
+        <div class="ta-num">08</div>
+        <div class="ta-title">08. DRAM Cell Transistor — 중급</div>
+        <div class="ta-teaser">여러 전기특성과 수율을 함께 만족하는 공정 영역을 찾는다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> 여러 전기특성과 수율을 함께 만족하는 공정 영역을 찾는다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> MOSFET, 소자공정, 통계적 변동성, 메모리 Cell.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>Gate·절연막·Dose와 Vth, 성능과 누설의 Trade-off, 산포와 수율.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>평균이 같아도 수율이 달라지는가? 구조와 Bias 가정이 바뀌면 관계가 유지되는가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>물리 가정, 산포, Spec 충돌, 실패 조건, 추가 소자 실험.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/dram_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/dram_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/dram_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/dram_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/dram_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    <details class="topic-acc" >
+      <summary>
+        <div class="ta-num">09</div>
+        <div class="ta-title">09. 3D NAND Vth Window — 고급</div>
+        <div class="ta-teaser">Read 오류가 커지는 조건과 추가 신뢰성 시험을 고른다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> Read 오류가 커지는 조건과 추가 신뢰성 시험을 고른다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> 비휘발성 메모리, 터널링·Charge trap, 신뢰성, ECC.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>전계와 터널링, State 평균·폭과 Window, Retention 시간과 분포 변화.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>평균 이동만으로 오류를 설명할 수 있는가? Layer·온도·P/E가 서로 교란하는가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>경쟁 시간모델 비교, 오류 조건, 반례 State, 추가 시험.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/3d_nand_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/3d_nand_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/3d_nand_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/3d_nand_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/3d_nand_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    <details class="topic-acc" >
+      <summary>
+        <div class="ta-num">10</div>
+        <div class="ta-title">10. Photo–Etch–CMP Virtual Lot — 고급</div>
+        <div class="ta-teaser">최종 결과에 기여한 병목 후보와 다음 실험을 고른다.</div>
+        <div class="ta-chev">▼</div>
+      </summary>
+      <div class="topic-acc-body">
+        <p class="ta-mission"><strong>미션:</strong> 최종 결과에 기여한 병목 후보와 다음 실험을 고른다.</p>
+        <div class="ta-subjects"><strong>교과 탐색:</strong> 공정통합, 오차전파, 민감도분석, 수율·DOE.</div>
+        <div class="ta-detail-grid">
+          <div>
+            <h6>찾을 관계</h6>
+            <p>공정 순서의 함수 연결, 앞 공정 산포의 전달, 상호작용.</p>
+          </div>
+          <div>
+            <h6>반박 질문</h6>
+            <p>민감도가 크면 원인인가? 측정하지 않은 공통 원인이 있는가?</p>
+          </div>
+          <div>
+            <h6>검증 증거</h6>
+            <p>병목 후보와 대안 설명, 모델 간 차이, 실패 Lot, 추가실험 3개.</p>
+          </div>
+        </div>
+        <div class="data-note" style="margin-top:16px;">
+          <strong>다운로드 링크:</strong>
+          <div class="dl-links">
+            <a href="data/virtual_A_train.csv" class="dl-link" download>
+              <span class="dl-main">A 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/virtual_A_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">A 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+            <a href="data/virtual_B_train.csv" class="dl-link" download>
+              <span class="dl-main">B 학습용 데이터</span>
+              <small>CSV · 학습 및 Validation</small>
+            </a>
+            <a href="data/virtual_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+
+            <a href="data/<a href="data/virtual_B_holdout_features.csv" class="dl-link hold" download>
+              <span class="dl-main">B 검증용 입력</span>
+              <small>CSV · Label 없음</small>
+            </a>
+          </div>_whole_schema.json" class="dl-link" download>
+              <span class="dl-main">전체 데이터 사전</span>
+              <small>JSON · feature/target 설명</small>
+            </a>
+          </div>
+        </div>
+      </div>
+    </details>
+    
+    </div>
+  </div>
+</section>
+
+<!-- Lightbox Modal -->
+<div class="lightbox" id="lightbox">
+  <div class="lightbox-close">닫기 ✕</div>
+  <div class="lightbox-inner" id="lb-inner"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const lb = document.getElementById('lightbox');
+  const lbInner = document.getElementById('lb-inner');
+  const lbClose = document.querySelector('.lightbox-close');
+
+  // Find all zoomable elements
+  document.querySelectorAll('.chart-frame, img:not(.no-zoom)').forEach(el => {
+    el.style.cursor = 'zoom-in';
+    el.addEventListener('click', (e) => {
+      e.stopPropagation(); // prevent immediate close
+      lbInner.innerHTML = '';
+      if (el.tagName === 'IMG') {
+        const img = document.createElement('img');
+        img.src = el.src;
+        img.style.maxWidth = '100%';
+        img.style.maxHeight = '85vh';
+        img.style.objectFit = 'contain';
+        lbInner.appendChild(img);
+      } else {
+        lbInner.innerHTML = el.innerHTML;
+      }
+      lb.classList.add('open');
+    });
+  });
+
+  const closeLb = () => {
+    lb.classList.remove('open');
+    lbInner.innerHTML = '';
+  };
+
+  lbClose.addEventListener('click', closeLb);
+  
+  // Close when clicking outside inner content
+  lb.addEventListener('click', (e) => {
+    if(e.target === lb) closeLb();
+  });
+});
+</script>
+
+</body>
+</html>
